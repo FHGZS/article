@@ -58,7 +58,10 @@
 ![](assets/mmtls_image/5.jpg)
 
 　　事实上，在实际通信过程中，只需要通信中某一方签名它的协商数据就可以保证不被中间人攻击，mmtls就是只对Server做认证，不对Client做认证，因为微信客户端发布出去后，任何人都可以获得，只要能够保证客户端程序本身的完整性，就相当于保证了客户端程序是由官方发布的，为认证合法的客户端，而客户端程序本身的完整性不是mmtls协议保护的范畴。在这一点上，TLS要复杂一些，TLS作为一个通用的安全通信协议，可能会存在一些需要对Client进行认证的场合，因此TLS提供了可选的双方相互认证的能力，通过握手协商过程中选择的CipherSuite是什么类型来决定是否要对Server进行认证，通过Server是否发送CertificateRequest握手消息来决定是否要对Client进行认证。由于mmtls不需要对Client做认证，在这块内容上比TLS简洁许多，更加轻量级。
-#####2.PSK密钥协商#####
+##### 2.PSK密钥协商 
+
+
+###
 　　PSK是在一次ECDH握手中由server下发的内容，它的大致数据结构为`PSK{key，ticket{key}}`，即PSK包含一个用来做对称加密密钥的key明文，以及用`ticket_key`对`key`进行加密的密文`ticket`，当然PSK是在安全信道中下发的，也就是说在网络中进行传输的时候PSK是加密的，中间人是拿不到`key`的。其中`ticket_key`只有server才知道，由server负责私密保存。
 
 　　PSK协商比较简单，Client将PSK的`ticket{key}`部分发送给Server，由于只有Server才知道`ticket_key`，因此key是不会被窃听的。Server拿到ticket后，使用`ticket_key`解密得到key，然后Server用基于协商得到的密钥key，对协商数据计算消息认证码来认证，这样就完成了PSK认证密钥协商。PSK认证密钥协商使用的都是对称算法，性能上比ECDH认证密钥协商要好很多。
